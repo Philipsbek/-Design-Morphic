@@ -1,0 +1,92 @@
+---
+import AnimeScene from './AnimeScene.astro';
+const strip = [60, 61, 62, 63, 64, 65, 66, 67];
+---
+
+<section class="section cta">
+  <div class="cta-strip" aria-hidden="true">
+    <div class="cta-strip-track">
+      {
+        [...strip, ...strip].map((v) => (
+          <div class="cta-thumb">
+            <AnimeScene v={v} ratio="square" />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="container cta-inner" data-reveal>
+    <h2 class="headline-display">
+      Your story,<br />
+      <span class="echo">already animating.</span>
+    </h2>
+    <p>Open a canvas and type the first scene. Your free key visual is 25 seconds away.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-primary">Start for free</a>
+      <a href="#pricing" class="btn btn-outline">Compare plans</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+    padding-block: var(--spacing-100);
+  }
+  .cta-strip {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    -webkit-mask-image: radial-gradient(ellipse 60% 70% at center, transparent 28%, #000 78%);
+    mask-image: radial-gradient(ellipse 60% 70% at center, transparent 28%, #000 78%);
+    opacity: 0.32;
+  }
+  .cta-strip-track {
+    display: flex;
+    gap: var(--spacing-12);
+    width: max-content;
+    animation: slide 70s linear infinite;
+  }
+  .cta-thumb {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-strip-track {
+      animation: none;
+    }
+  }
+
+  .cta-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-24);
+  }
+  .cta-inner p {
+    max-width: 440px;
+    font-size: var(--text-body-lg);
+    color: var(--color-mid-gray);
+    letter-spacing: -0.4px;
+  }
+  .cta-actions {
+    display: flex;
+    gap: var(--spacing-12);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+</style>

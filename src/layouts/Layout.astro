@@ -1,0 +1,92 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Morphic — type a scene, watch it become anime',
+  description = 'Morphic turns a single line of story into cel-shaded anime key visuals, consistent characters and fully animated cuts. Direct your own episode, no studio required.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+
+    <script>
+      // Scroll reveal via IntersectionObserver
+      const reveal = () => {
+        const els = document.querySelectorAll('[data-reveal]');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach((el) => el.classList.add('is-visible'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+        );
+        els.forEach((el) => io.observe(el));
+      };
+
+      // Carousel arrow controls
+      const carousels = () => {
+        document.querySelectorAll('[data-carousel]').forEach((root) => {
+          const track = root.querySelector('[data-track]') as HTMLElement | null;
+          const prev = root.querySelector('[data-prev]') as HTMLElement | null;
+          const next = root.querySelector('[data-next]') as HTMLElement | null;
+          if (!track) return;
+          const step = () => Math.min(track.clientWidth * 0.8, 720);
+          prev?.addEventListener('click', () =>
+            track.scrollBy({ left: -step(), behavior: 'smooth' })
+          );
+          next?.addEventListener('click', () =>
+            track.scrollBy({ left: step(), behavior: 'smooth' })
+          );
+        });
+      };
+
+      // Nav elevation on scroll
+      const navScroll = () => {
+        const nav = document.querySelector('[data-nav]');
+        if (!nav) return;
+        const onScroll = () =>
+          nav.classList.toggle('is-scrolled', window.scrollY > 12);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      };
+
+      reveal();
+      carousels();
+      navScroll();
+    </script>
+  </body>
+</html>

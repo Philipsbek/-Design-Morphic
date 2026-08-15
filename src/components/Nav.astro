@@ -1,0 +1,160 @@
+---
+const links = [
+  { label: 'Showcase', href: '#showcase' },
+  { label: 'Workflows', href: '#workflows' },
+  { label: 'Canvas', href: '#canvas' },
+  { label: 'Pricing', href: '#pricing' },
+];
+---
+
+<header class="nav" data-nav>
+  <div class="container nav-inner">
+    <a href="#top" class="brand" aria-label="Morphic home">
+      <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+        <path
+          d="M6 24V9l10 8 10-8v15"
+          fill="none"
+          stroke="#0075ff"
+          stroke-width="2.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      <span class="brand-word">Morphic</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="nav-actions">
+      <a href="#" class="nav-login">Log in</a>
+      <a href="#pricing" class="btn btn-outline nav-cta">Start creating</a>
+    </div>
+
+    <button class="nav-burger" aria-label="Toggle menu" data-burger>
+      <span></span><span></span>
+    </button>
+  </div>
+
+  <div class="nav-mobile" data-mobile-menu>
+    {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    <a href="#" class="nav-login">Log in</a>
+    <a href="#pricing" class="btn btn-primary">Start creating</a>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+  .nav.is-scrolled {
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: var(--border-hairline);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-word {
+    color: var(--color-paper-white);
+    font-size: var(--text-heading-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.44px;
+  }
+  .nav-links {
+    display: flex;
+    gap: var(--spacing-28);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .nav-links a {
+    color: var(--color-paper-white);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    opacity: 0.86;
+    transition: opacity 0.18s ease;
+  }
+  .nav-links a:hover {
+    opacity: 1;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-16);
+  }
+  .nav-login {
+    color: var(--color-paper-white);
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    opacity: 0.86;
+  }
+  .nav-login:hover {
+    opacity: 1;
+  }
+
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 6px;
+  }
+  .nav-burger span {
+    width: 22px;
+    height: 2px;
+    background: var(--color-paper-white);
+    border-radius: 2px;
+  }
+
+  .nav-mobile {
+    display: none;
+    flex-direction: column;
+    gap: var(--spacing-16);
+    padding: var(--spacing-24);
+    background: rgba(0, 0, 0, 0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: var(--border-hairline);
+  }
+  .nav-mobile a:not(.btn) {
+    color: var(--color-paper-white);
+    font-size: var(--text-body-lg);
+    font-weight: var(--font-weight-medium);
+  }
+  .nav-mobile.is-open {
+    display: flex;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links,
+    .nav-cta,
+    .nav-actions .nav-login {
+      display: none;
+    }
+    .nav-burger {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  const burger = document.querySelector('[data-burger]');
+  const menu = document.querySelector('[data-mobile-menu]');
+  burger?.addEventListener('click', () => menu?.classList.toggle('is-open'));
+  menu?.querySelectorAll('a').forEach((a) =>
+    a.addEventListener('click', () => menu?.classList.remove('is-open'))
+  );
+</script>

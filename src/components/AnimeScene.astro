@@ -1,0 +1,281 @@
+---
+/**
+ * AnimeScene — a deterministic, self-contained "anime key visual" generator.
+ * Renders Makoto-Shinkai-style gradient skies with layered silhouettes
+ * (cityscapes, mountains, Fuji, forests), a sun/moon, clouds, stars, birds
+ * and sakura branches. Every scene is derived from a numeric `v` seed, so
+ * output is stable across builds and needs no network — the imagery IS the
+ * product's "generated" output, per the Morphic imagery strategy.
+ */
+interface Props {
+  v?: number;
+  ratio?: 'wide' | 'tall' | 'square';
+  class?: string;
+}
+const { v = 0, ratio = 'wide', class: cls = '' } = Astro.props;
+
+const { W, H } =
+  ratio === 'tall'
+    ? { W: 360, H: 480 }
+    : ratio === 'square'
+      ? { W: 400, H: 400 }
+      : { W: 400, H: 280 };
+
+// --- deterministic PRNG (mulberry32) ---
+function mulberry32(a: number) {
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(Math.imul(v + 1, 2654435761) ^ 0x9e3779b9);
+const rf = (min: number, max: number) => rnd() * (max - min) + min;
+const ri = (min: number, max: number) => Math.floor(rf(min, max + 1));
+
+const palettes = [
+  { sky: ['#1b1035', '#6d2f6b', '#f4a7c0'], body: '#ffd9a0', moon: false, sil1: '#3a1a44', sil2: '#0b0713', night: false, warm: '#ffd27a' },
+  { sky: ['#07223f', '#2e6fa3', '#bfe6f2'], body: '#fff6d8', moon: false, sil1: '#123049', sil2: '#071522', night: false, warm: '#ffe08a' },
+  { sky: ['#05060f', '#111b3e', '#26408f'], body: '#d7e6ff', moon: true, sil1: '#0a1230', sil2: '#02030a', night: true, warm: '#ffd27a' },
+  { sky: ['#6fb7e8', '#bfe0f2', '#ffe0ea'], body: '#ffffff', moon: false, sil1: '#2a3f56', sil2: '#142230', night: false, warm: '#ff9ec2' },
+  { sky: ['#2a0f2e', '#b03a5b', '#ff9d5c'], body: '#ffe6a0', moon: false, sil1: '#3a1226', sil2: '#120616', night: false, warm: '#ffb27a' },
+  { sky: ['#0c2f34', '#2f8f86', '#d3f0e2'], body: '#ffffff', moon: false, sil1: '#123c38', sil2: '#06201d', night: false, warm: '#aef0d6' },
+  { sky: ['#0a0a1f', '#3a2f7a', '#9a7fe0'], body: '#e9dcff', moon: true, sil1: '#191441', sil2: '#070512', night: true, warm: '#c9b3ff' },
+  { sky: ['#0e3556', '#d98a3d', '#ffd782'], body: '#fff2c8', moon: false, sil1: '#123246', sil2: '#0a1a26', night: false, warm: '#ffd27a' },
+];
+const P = palettes[((v % palettes.length) + palettes.length) % palettes.length];
+
+const uid = 'sc' + Math.random().toString(36).slice(2, 8);
+
+// Celestial body
+const bodyX = rf(0.16, 0.84) * W;
+const bodyY = rf(0.16, 0.4) * H;
+const bodyR = rf(0.08, 0.13) * W;
+
+// Stars (night only)
+const stars = P.night
+  ? Array.from({ length: ri(26, 44) }, () => ({
+      x: +(rf(0, 1) * W).toFixed(1),
+      y: +(rf(0, 0.66) * H).toFixed(1),
+      r: +rf(0.4, 1.4).toFixed(2),
+      o: +rf(0.3, 1).toFixed(2),
+    }))
+  : [];
+
+// Clouds
+const clouds = Array.from({ length: ri(1, 3) }, () => ({
+  x: +(rf(0.05, 0.85) * W).toFixed(1),
+  y: +(rf(0.12, 0.5) * H).toFixed(1),
+  s: +rf(0.7, 1.5).toFixed(2),
+  o: +rf(0.12, 0.28).toFixed(2),
+}));
+
+// Birds (daytime, sometimes)
+const birds = !P.night && rnd() > 0.45
+  ? Array.from({ length: ri(3, 6) }, () => ({
+      x: +(rf(0.1, 0.8) * W).toFixed(1),
+      y: +(rf(0.16, 0.42) * H).toFixed(1),
+      s: +rf(3, 6).toFixed(1),
+    }))
+  : [];
+
+// Back ridge (distant mountains)
+function ridge(baseFrac: number, amp: number, segs: number) {
+  const base = baseFrac * H;
+  let pts = `0,${H} 0,${(base + rf(-amp * 0.4, amp * 0.4)).toFixed(1)}`;
+  for (let i = 1; i <= segs; i++) {
+    const x = (i / segs) * W;
+    const y = base - Math.abs(rf(0, amp)) * (i % 2 ? 1 : 0.55);
+    pts += ` ${x.toFixed(1)},${y.toFixed(1)}`;
+  }
+  return pts + ` ${W},${H}`;
+}
+const backPts = ridge(rf(0.58, 0.68), H * 0.16, ri(6, 10));
+
+// Foreground silhouette type
+const frontType = (['city', 'hills', 'fuji', 'forest'] as const)[v % 4];
+
+// City buildings + lit windows
+const buildings: { x: number; w: number; h: number }[] = [];
+const windows: { x: number; y: number }[] = [];
+if (frontType === 'city') {
+  let x = -rf(0, 20);
+  while (x < W) {
+    const w = rf(16, 40);
+    const h = rf(0.16, 0.46) * H;
+    buildings.push({ x: +x.toFixed(1), w: +w.toFixed(1), h: +h.toFixed(1) });
+    const top = H - h;
+    for (let wx = x + 4; wx < x + w - 4; wx += 7) {
+      for (let wy = top + 8; wy < H - 6; wy += 9) {
+        if (rnd() > 0.72)
+          windows.push({ x: +wx.toFixed(1), y: +wy.toFixed(1) });
+      }
+    }
+    x += w + rf(1, 5);
+  }
+}
+
+// Hills / Fuji / Forest as a single polygon
+function frontPolygon(): string {
+  const base = rf(0.74, 0.82) * H;
+  if (frontType === 'fuji') {
+    const cx = rf(0.3, 0.7) * W;
+    const peak = rf(0.34, 0.46) * H;
+    const half = rf(0.34, 0.46) * W;
+    return `0,${H} 0,${base} ${(cx - half).toFixed(1)},${base} ${cx.toFixed(1)},${peak.toFixed(1)} ${(cx + half).toFixed(1)},${base} ${W},${base} ${W},${H}`;
+  }
+  if (frontType === 'forest') {
+    let pts = `0,${H} 0,${base}`;
+    const n = ri(9, 16);
+    for (let i = 0; i <= n; i++) {
+      const x = (i / n) * W;
+      const y = i % 2 ? base - rf(10, 30) : base + rf(0, 6);
+      pts += ` ${x.toFixed(1)},${y.toFixed(1)}`;
+    }
+    return pts + ` ${W},${H}`;
+  }
+  // hills
+  let pts = `0,${H} 0,${(base + rf(-8, 8)).toFixed(1)}`;
+  const n = ri(4, 7);
+  for (let i = 1; i <= n; i++) {
+    const x = (i / n) * W;
+    const y = base - Math.sin((i / n) * Math.PI) * rf(14, 34) + rf(-6, 6);
+    pts += ` ${x.toFixed(1)},${y.toFixed(1)}`;
+  }
+  return pts + ` ${W},${H}`;
+}
+const frontPts = frontType !== 'city' ? frontPolygon() : '';
+const snowCap =
+  frontType === 'fuji'
+    ? (() => {
+        const parts = frontPts.split(' ');
+        // parts: 0,H 0,base (cx-half),base cx,peak (cx+half),base ...
+        const peak = parts[3].split(',').map(Number);
+        const spread = rf(18, 30);
+        return `${(peak[0] - spread).toFixed(1)},${(peak[1] + spread * 1.4).toFixed(1)} ${peak[0].toFixed(1)},${peak[1].toFixed(1)} ${(peak[0] + spread).toFixed(1)},${(peak[1] + spread * 1.4).toFixed(1)} ${(peak[0] + spread * 0.4).toFixed(1)},${(peak[1] + spread * 0.9).toFixed(1)} ${peak[0].toFixed(1)},${(peak[1] + spread * 1.5).toFixed(1)} ${(peak[0] - spread * 0.4).toFixed(1)},${(peak[1] + spread * 0.9).toFixed(1)}`;
+      })()
+    : '';
+
+// Sakura branch (top corner, ~half the scenes)
+const hasSakura = v % 2 === 0;
+const sakuraLeft = v % 4 === 0;
+const blossoms = hasSakura
+  ? Array.from({ length: ri(7, 12) }, (_, i) => ({
+      x: +((sakuraLeft ? rf(0.02, 0.34) : rf(0.66, 0.98)) * W).toFixed(1),
+      y: +(rf(0.02, 0.34) * H).toFixed(1),
+      r: +rf(3, 6).toFixed(1),
+      k: i,
+    }))
+  : [];
+---
+
+<svg
+  class={`anime-scene ${cls}`}
+  viewBox={`0 0 ${W} ${H}`}
+  preserveAspectRatio="xMidYMid slice"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="AI-generated anime key visual"
+>
+  <defs>
+    <linearGradient id={`${uid}-sky`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color={P.sky[0]} />
+      <stop offset="55%" stop-color={P.sky[1]} />
+      <stop offset="100%" stop-color={P.sky[2]} />
+    </linearGradient>
+    <radialGradient id={`${uid}-halo`}>
+      <stop offset="0%" stop-color={P.body} stop-opacity="0.55" />
+      <stop offset="100%" stop-color={P.body} stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id={`${uid}-grade`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.18" />
+      <stop offset="45%" stop-color="#000" stop-opacity="0" />
+      <stop offset="100%" stop-color="#000" stop-opacity="0.32" />
+    </linearGradient>
+  </defs>
+
+  <rect width={W} height={H} fill={`url(#${uid}-sky)`} />
+
+  {stars.map((s) => <circle cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />)}
+
+  <circle cx={bodyX} cy={bodyY} r={bodyR * 2.4} fill={`url(#${uid}-halo)`} />
+  <circle cx={bodyX} cy={bodyY} r={bodyR} fill={P.body} />
+  {P.moon && (
+    <circle cx={bodyX + bodyR * 0.5} cy={bodyY - bodyR * 0.18} r={bodyR * 0.92} fill={P.sky[0]} />
+  )}
+
+  {clouds.map((c) => (
+    <g transform={`translate(${c.x} ${c.y}) scale(${c.s})`} fill="#fff" opacity={c.o}>
+      <ellipse cx="0" cy="0" rx="26" ry="8" />
+      <ellipse cx="16" cy="-4" rx="18" ry="7" />
+      <ellipse cx="-16" cy="-2" rx="16" ry="6" />
+    </g>
+  ))}
+
+  {birds.map((b) => (
+    <path
+      d={`M ${b.x} ${b.y} q ${b.s} ${-b.s * 0.7} ${b.s * 2} 0 q ${b.s} ${-b.s * 0.7} ${b.s * 2} 0`}
+      fill="none"
+      stroke={P.sil2}
+      stroke-width="1.1"
+      opacity="0.75"
+    />
+  ))}
+
+  <polygon points={backPts} fill={P.sil1} opacity="0.92" />
+
+  {frontType === 'city' ? (
+    <g>
+      {buildings.map((b) => (
+        <rect x={b.x} y={H - b.h} width={b.w} height={b.h} fill={P.sil2} />
+      ))}
+      {windows.map((w) => (
+        <rect x={w.x} y={w.y} width="2.4" height="2.8" fill={P.warm} opacity="0.85" />
+      ))}
+    </g>
+  ) : (
+    <g>
+      <polygon points={frontPts} fill={P.sil2} />
+      {snowCap && <polygon points={snowCap} fill="#f2f6ff" opacity="0.9" />}
+    </g>
+  )}
+
+  {hasSakura && (
+    <g stroke="#3a2418" stroke-width="2.4" stroke-linecap="round" fill="none">
+      {sakuraLeft ? (
+        <path d={`M ${-2} ${-2} Q ${W * 0.16} ${H * 0.06} ${W * 0.3} ${H * 0.24} M ${W * 0.14} ${H * 0.05} Q ${W * 0.2} ${H * 0.16} ${W * 0.12} ${H * 0.26}`} />
+      ) : (
+        <path d={`M ${W + 2} ${-2} Q ${W * 0.84} ${H * 0.06} ${W * 0.7} ${H * 0.24} M ${W * 0.86} ${H * 0.05} Q ${W * 0.8} ${H * 0.16} ${W * 0.88} ${H * 0.26}`} />
+      )}
+    </g>
+  )}
+  {blossoms.map((b) => (
+    <g transform={`translate(${b.x} ${b.y})`}>
+      {[0, 72, 144, 216, 288].map((a) => (
+        <ellipse
+          cx={Math.cos((a * Math.PI) / 180) * b.r}
+          cy={Math.sin((a * Math.PI) / 180) * b.r}
+          rx={b.r * 0.62}
+          ry={b.r * 0.42}
+          transform={`rotate(${a} ${Math.cos((a * Math.PI) / 180) * b.r} ${Math.sin((a * Math.PI) / 180) * b.r})`}
+          fill={P.night ? '#ffd9ea' : '#ffb6d2'}
+          opacity="0.95"
+        />
+      ))}
+      <circle r={b.r * 0.28} fill="#ff7fae" />
+    </g>
+  ))}
+
+  <rect width={W} height={H} fill={`url(#${uid}-grade)`} />
+</svg>
+
+<style>
+  .anime-scene {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

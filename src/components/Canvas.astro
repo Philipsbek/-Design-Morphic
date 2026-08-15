@@ -1,0 +1,352 @@
+---
+import AnimeScene from './AnimeScene.astro';
+
+const tabs = [
+  { id: 'canvas', label: 'Canvas' },
+  { id: 'copilot', label: 'Copilot' },
+  { id: 'compose', label: 'Compose' },
+];
+
+const canvasShots = [30, 31, 32, 33, 34, 35];
+const copilotShots = [40, 41, 42];
+const composeShots = [50, 51, 52, 53, 54];
+---
+
+<section class="section canvas" id="canvas">
+  <div class="container">
+    <div class="canvas-head" data-reveal>
+      <h2 class="headline-section">
+        Explore with Canvas.<br />
+        <span class="echo">Your infinite storyboard.</span>
+      </h2>
+      <p class="canvas-sub">
+        Lay every variation of a cut side by side, branch a shot into a dozen
+        moods, then pull the keepers into an episode — all on one endless
+        anime storyboard.
+      </p>
+    </div>
+
+    <div class="mockup" data-reveal style="--reveal-delay:120ms">
+      <!-- Toolbar -->
+      <div class="mock-bar">
+        <div class="mock-left">
+          <span class="mock-dots" aria-hidden="true"
+            ><i></i><i></i><i></i></span
+          >
+          <span class="mock-project">Episode 01 — Rooftop confession</span>
+        </div>
+
+        <div class="mock-tabs" role="tablist">
+          {
+            tabs.map((t, i) => (
+              <button
+                class={`mock-tab${i === 0 ? ' active' : ''}`}
+                data-tab={t.id}
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+              >
+                {t.label}
+              </button>
+            ))
+          }
+        </div>
+
+        <button class="btn btn-primary mock-share">Share</button>
+      </div>
+
+      <!-- Panels -->
+      <div class="mock-body">
+        <div class="mock-panel active" data-panel="canvas">
+          <div class="mock-grid">
+            {
+              canvasShots.map((s, i) => (
+                <div class={`mock-tile${i === 2 ? ' selected' : ''}`}>
+                  <AnimeScene v={s} ratio="wide" />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="mock-panel" data-panel="copilot">
+          <div class="copilot">
+            <div class="msg user">Make it blue hour, add falling sakura and wet rooftops.</div>
+            <div class="msg bot">
+              Re-lit to blue hour with petals drifting and rain-slicked tiles.
+              Want the two leads closer together in frame?
+            </div>
+            <div class="copilot-shots">
+              {
+                copilotShots.map((s) => (
+                  <div class="copilot-shot">
+                    <AnimeScene v={s} ratio="square" />
+                  </div>
+                ))
+              }
+            </div>
+            <div class="copilot-input">
+              <span>Describe the next cut…</span>
+              <span class="copilot-send" aria-hidden="true">↑</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mock-panel" data-panel="compose">
+          <div class="timeline">
+            {
+              composeShots.map((s) => (
+                <div class="clip">
+                  <AnimeScene v={s} ratio="wide" />
+                </div>
+              ))
+            }
+          </div>
+          <div class="track-line"></div>
+          <div class="scrubber"><span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .canvas-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-40);
+    margin-bottom: var(--spacing-40);
+    flex-wrap: wrap;
+  }
+  .canvas-sub {
+    max-width: 380px;
+    font-size: var(--text-body);
+    color: var(--color-mid-gray);
+    line-height: 1.6;
+  }
+
+  .mockup {
+    background: var(--surface-card);
+    border: var(--border-hairline);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-12);
+    box-shadow: var(--shadow-image);
+  }
+  .mock-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-16);
+    padding: 6px 8px var(--spacing-12);
+  }
+  .mock-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-12);
+    min-width: 0;
+  }
+  .mock-dots {
+    display: inline-flex;
+    gap: 6px;
+  }
+  .mock-dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface-floating);
+  }
+  .mock-project {
+    font-size: 12px;
+    color: var(--color-mid-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mock-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--color-pure-black);
+    padding: 4px;
+    border-radius: var(--radius-md);
+  }
+  .mock-tab {
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-mid-gray);
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+    transition: color 0.18s ease, background 0.18s ease;
+  }
+  .mock-tab.active {
+    color: var(--color-paper-white);
+    background: var(--surface-raised);
+  }
+
+  .mock-share {
+    padding: 6px 14px;
+  }
+
+  .mock-body {
+    background: var(--color-pure-black);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-16);
+    min-height: 340px;
+    position: relative;
+  }
+  .mock-panel {
+    display: none;
+  }
+  .mock-panel.active {
+    display: block;
+    animation: fade 0.4s ease;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  .mock-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-12);
+  }
+  .mock-tile {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 7 / 5;
+    border: 2px solid transparent;
+  }
+  .mock-tile.selected {
+    border-color: var(--color-electric-blue);
+  }
+
+  /* Copilot */
+  .copilot {
+    max-width: 560px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-12);
+  }
+  .msg {
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: var(--radius-lg);
+    max-width: 80%;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--color-electric-blue);
+    color: #fff;
+  }
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--surface-card);
+    color: var(--color-mist);
+  }
+  .copilot-shots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-8);
+  }
+  .copilot-shot {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .copilot-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-card);
+    border: var(--border-hairline);
+    border-radius: var(--radius-full);
+    padding: 10px 8px 10px 16px;
+    font-size: 13px;
+    color: var(--color-steel);
+    margin-top: 4px;
+  }
+  .copilot-send {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-electric-blue);
+    color: #fff;
+  }
+
+  /* Compose timeline */
+  .timeline {
+    display: flex;
+    gap: var(--spacing-8);
+    overflow: hidden;
+  }
+  .clip {
+    flex: 0 0 auto;
+    width: 150px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .track-line {
+    height: 1px;
+    background: var(--surface-floating);
+    margin: var(--spacing-24) 0 var(--spacing-8);
+  }
+  .scrubber {
+    height: 8px;
+    background: var(--surface-card);
+    border-radius: var(--radius-full);
+    position: relative;
+    overflow: hidden;
+  }
+  .scrubber span {
+    position: absolute;
+    inset: 0 60% 0 0;
+    background: var(--color-electric-blue);
+    border-radius: var(--radius-full);
+    animation: scrub 5s ease-in-out infinite alternate;
+  }
+  @keyframes scrub {
+    from {
+      right: 78%;
+    }
+    to {
+      right: 8%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .mock-project,
+    .mock-dots {
+      display: none;
+    }
+    .mock-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.mockup').forEach((mock) => {
+    const tabs = mock.querySelectorAll('[data-tab]');
+    const panels = mock.querySelectorAll('[data-panel]');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.getAttribute('data-tab');
+        tabs.forEach((t) => {
+          t.classList.toggle('active', t === tab);
+          t.setAttribute('aria-selected', String(t === tab));
+        });
+        panels.forEach((p) =>
+          p.classList.toggle('active', p.getAttribute('data-panel') === id)
+        );
+      });
+    });
+  });
+</script>

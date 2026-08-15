@@ -1,0 +1,140 @@
+---
+import SakuraPetals from './SakuraPetals.astro';
+import AnimeAvatar from './AnimeAvatar.astro';
+---
+
+<section class="hero" id="top">
+  <SakuraPetals />
+  <div class="container hero-inner">
+    <a href="#workflows" class="announce" data-reveal>
+      <span class="badge-new">New</span>
+      <span class="announce-text">Sakura 2.0 anime motion model — free on every plan this season</span>
+      <span class="announce-arrow" aria-hidden="true">›</span>
+    </a>
+
+    <p class="kicker" data-reveal>アニメ・ジェネレーション</p>
+
+    <h1 class="headline-display hero-headline">
+      <span data-reveal style="--reveal-delay:80ms">Type a scene.</span>
+      <span class="echo" data-reveal style="--reveal-delay:180ms">Watch it become anime.</span>
+    </h1>
+
+    <p class="hero-sub" data-reveal style="--reveal-delay:280ms">
+      Morphic turns a single line of story into cel-shaded key visuals,
+      consistent characters, and fully animated cuts — sakura, sunsets, mecha
+      and all. Direct your own episode, no studio required.
+    </p>
+
+    <div class="hero-cta" data-reveal style="--reveal-delay:360ms">
+      <a href="#pricing" class="btn btn-primary">Start for free</a>
+      <a href="#canvas" class="btn btn-secondary">Watch a reel</a>
+    </div>
+
+    <div class="hero-proof" data-reveal style="--reveal-delay:440ms">
+      <div class="avatars">
+        {[11, 24, 37, 52].map((v) => <AnimeAvatar v={v} size={24} class="av" />)}
+      </div>
+      <span>Loved by 140,000+ animators, doujin artists &amp; studios</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-top: 168px;
+    padding-bottom: var(--spacing-72);
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 900px;
+  }
+  .announce {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-8);
+    background: var(--surface-card);
+    border: var(--border-hairline);
+    border-radius: var(--radius-full);
+    padding: 5px 14px 5px 6px;
+    margin-bottom: var(--spacing-24);
+    transition: background 0.2s ease;
+  }
+  .announce:hover {
+    background: var(--surface-raised);
+  }
+  .announce-text {
+    font-size: 12px;
+    color: var(--color-mid-gray);
+  }
+  .announce-arrow {
+    color: var(--color-mid-gray);
+    font-size: 14px;
+  }
+
+  .kicker {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--color-steel);
+    margin-bottom: var(--spacing-16);
+  }
+
+  .hero-headline {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-headline span {
+    display: block;
+  }
+
+  .hero-sub {
+    max-width: 560px;
+    margin-top: var(--spacing-24);
+    font-size: var(--text-body-lg);
+    line-height: 1.5;
+    letter-spacing: -0.4px;
+    color: var(--color-mid-gray);
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: var(--spacing-12);
+    margin-top: var(--spacing-32);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-proof {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-12);
+    margin-top: var(--spacing-40);
+    font-size: 12px;
+    color: var(--color-mid-gray);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .avatars {
+    display: flex;
+  }
+  .avatars :global(.av) {
+    border-radius: 50%;
+    border: 2px solid var(--color-pure-black);
+    margin-left: -8px;
+  }
+  .avatars :global(.av:first-child) {
+    margin-left: 0;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding-top: 128px;
+    }
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+import AnimeScene from './AnimeScene.astro';
+
+const cards = [
+  { v: 0, tag: 'Line art', title: 'Sketch to cel-shade', desc: 'Drop a rough line drawing and get clean, colored, cel-shaded anime in seconds.' },
+  { v: 3, tag: 'Character', title: 'Consistent cast', desc: 'Lock a character sheet once, then keep the same face and outfit across every cut.' },
+  { v: 5, tag: 'Motion', title: 'In-between frames', desc: 'Give two keyframes; Sakura 2.0 tweens the smooth animation between them.' },
+  { v: 2, tag: 'Lighting', title: 'Golden-hour relight', desc: 'Turn flat daylight into a dramatic sunset or blue-hour mood, shadows re-solved.' },
+  { v: 4, tag: 'Backgrounds', title: 'Shinkai-style skies', desc: 'Generate lush, painterly background art to drop your characters straight into.' },
+  { v: 6, tag: 'Loops', title: 'Idol dance loops', desc: 'Turn a short clip into a seamless, endlessly looping animation for shorts.' },
+];
+---
+
+<section class="section carousel-section" id="workflows" data-carousel>
+  <div class="container">
+    <div class="carousel-head" data-reveal>
+      <h2 class="headline-section">
+        Workflows.<br />
+        <span class="echo">Studio speed, solo desk.</span>
+      </h2>
+      <div class="carousel-controls">
+        <button class="ctl" data-prev aria-label="Scroll left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            ><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path></svg
+          >
+        </button>
+        <button class="ctl" data-next aria-label="Scroll right">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            ><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path></svg
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="track no-scrollbar" data-track>
+      {
+        cards.map((c, i) => (
+          <article class="wf-card" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <div class="wf-media">
+              <AnimeScene v={c.v} ratio="wide" />
+              <span class="pill wf-pill">{c.tag}</span>
+            </div>
+            <h3 class="wf-title">{c.title}</h3>
+            <p class="wf-desc">{c.desc}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .carousel-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-24);
+    margin-bottom: var(--spacing-32);
+  }
+  .carousel-controls {
+    display: flex;
+    gap: var(--spacing-8);
+  }
+  .ctl {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    color: var(--color-paper-white);
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .ctl:hover {
+    background: var(--surface-floating);
+  }
+  .ctl:active {
+    transform: scale(0.92);
+  }
+
+  .track {
+    display: flex;
+    gap: var(--spacing-16);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-block: 4px;
+    margin-inline: calc(var(--spacing-24) * -1);
+    padding-inline: var(--spacing-24);
+  }
+  .wf-card {
+    flex: 0 0 300px;
+    scroll-snap-align: start;
+    background: var(--surface-card);
+    border: var(--border-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-12);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .wf-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(229, 231, 235, 0.22);
+  }
+  .wf-media {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 16 / 11;
+    margin-bottom: var(--spacing-12);
+  }
+  .wf-media :global(.anime-scene) {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wf-card:hover .wf-media :global(.anime-scene) {
+    transform: scale(1.06);
+  }
+  .wf-pill {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    z-index: 2;
+  }
+  .wf-title {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-paper-white);
+    margin-bottom: 6px;
+  }
+  .wf-desc {
+    font-size: 12px;
+    color: var(--color-mid-gray);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .wf-card {
+      flex-basis: 260px;
+    }
+  }
+</style>

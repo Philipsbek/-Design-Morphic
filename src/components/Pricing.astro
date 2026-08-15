@@ -1,0 +1,204 @@
+---
+const plans = [
+  {
+    name: 'Free',
+    price: '$0',
+    per: '/ forever',
+    desc: 'For trying the canvas and animating your first scene.',
+    features: ['120 frames / month', '720p cel-shade', 'Canvas & Copilot', 'Community gallery'],
+    cta: 'Start for free',
+    variant: 'secondary',
+    featured: false,
+  },
+  {
+    name: 'Creator',
+    price: '$24',
+    per: '/ month',
+    desc: 'For solo animators shipping an episode a week.',
+    features: [
+      '3,000 frames / month',
+      '4K cel-shade & motion',
+      'Character consistency',
+      'Sakura 2.0 motion engine',
+      'Commercial license',
+    ],
+    cta: 'Start for free',
+    variant: 'primary',
+    featured: true,
+  },
+  {
+    name: 'Studio',
+    price: '$96',
+    per: '/ month',
+    desc: 'For anime studios producing at volume.',
+    features: [
+      'Unlimited frames',
+      'Shared team canvases',
+      'Priority render queue',
+      'Character & style locks',
+      'SSO & audit log',
+    ],
+    cta: 'Book a demo',
+    variant: 'secondary',
+    featured: false,
+  },
+];
+---
+
+<section class="section pricing" id="pricing">
+  <div class="container">
+    <div class="pricing-head" data-reveal>
+      <h2 class="headline-section">
+        Simple pricing.<br />
+        <span class="echo">Scale when you're ready.</span>
+      </h2>
+      <p>Start free. Upgrade the moment your first cut pays for itself. Cancel anytime.</p>
+    </div>
+
+    <div class="plans">
+      {
+        plans.map((p, i) => (
+          <article
+            class={`plan${p.featured ? ' featured' : ''}`}
+            data-reveal
+            style={`--reveal-delay:${i * 80}ms`}
+          >
+            {p.featured && <span class="plan-flag">Most popular</span>}
+            <h3 class="plan-name">{p.name}</h3>
+            <div class="plan-price">
+              <span class="amt">{p.price}</span>
+              <span class="per">{p.per}</span>
+            </div>
+            <p class="plan-desc">{p.desc}</p>
+            <ul class="plan-feats">
+              {p.features.map((f) => (
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 12l4 4 10-10"
+                      stroke="#0075ff"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <a href="#" class={`btn btn-${p.variant} plan-cta`}>
+              {p.cta}
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing-head {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-16);
+    margin-bottom: var(--spacing-60);
+  }
+  .pricing-head p {
+    max-width: 440px;
+    color: var(--color-mid-gray);
+  }
+
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-16);
+    align-items: start;
+  }
+  .plan {
+    position: relative;
+    background: var(--surface-card);
+    border: var(--border-hairline);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-28);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-16);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .plan.featured {
+    border-color: rgba(0, 117, 255, 0.55);
+    background: var(--surface-two, #292929);
+  }
+  .plan:hover {
+    transform: translateY(-4px);
+  }
+  .plan-flag {
+    position: absolute;
+    top: var(--spacing-20);
+    right: var(--spacing-20);
+    font-size: 10px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-electric-blue);
+    border: 1px solid rgba(0, 117, 255, 0.4);
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
+  }
+  .plan-name {
+    font-size: var(--text-heading-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-paper-white);
+  }
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .amt {
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -1.9px;
+    color: var(--color-paper-white);
+    line-height: 1;
+  }
+  .per {
+    font-size: 13px;
+    color: var(--color-mid-gray);
+  }
+  .plan-desc {
+    font-size: 13px;
+    color: var(--color-mid-gray);
+    line-height: 1.5;
+  }
+  .plan-feats {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-12);
+    padding-top: var(--spacing-8);
+    border-top: var(--border-hairline);
+  }
+  .plan-feats li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-8);
+    font-size: 13px;
+    color: var(--color-mist);
+  }
+  .plan-feats svg {
+    flex: 0 0 auto;
+  }
+  .plan-cta {
+    justify-content: center;
+    margin-top: var(--spacing-8);
+  }
+
+  @media (max-width: 860px) {
+    .plans {
+      grid-template-columns: 1fr;
+      max-width: 420px;
+      margin-inline: auto;
+    }
+  }
+</style>

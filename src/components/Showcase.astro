@@ -1,0 +1,149 @@
+---
+import AnimeScene from './AnimeScene.astro';
+
+const rowA = [
+  { v: 3, label: 'Neo-Tokyo, blue hour' },
+  { v: 0, label: 'Shrine steps, sakura' },
+  { v: 7, label: 'Rooftop confession' },
+  { v: 2, label: 'Midnight train home' },
+  { v: 5, label: 'Seaside slice-of-life' },
+  { v: 4, label: 'Summer festival dusk' },
+  { v: 6, label: 'Mecha over the city' },
+];
+const rowB = [
+  { v: 1, label: 'Morning commute' },
+  { v: 6, label: 'Starlit cliffside' },
+  { v: 4, label: 'Ramen alley, rain' },
+  { v: 3, label: 'Cherry-blossom park' },
+  { v: 2, label: 'Winter platform' },
+  { v: 7, label: 'Golden-hour rooftops' },
+  { v: 5, label: 'Forest spirit path' },
+];
+---
+
+<section class="section showcase" id="showcase">
+  <div class="container showcase-head" data-reveal>
+    <h2 class="headline-section">
+      Made with Morphic.<br />
+      <span class="echo">Not a single frame was drawn by hand.</span>
+    </h2>
+    <a href="#pricing" class="btn btn-outline">See more</a>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-row">
+      <div class="marquee-track">
+        {
+          [...rowA, ...rowA].map((c, i) => (
+            <figure class="shot wide">
+              <AnimeScene v={c.v + (i % rowA.length)} ratio="wide" />
+              <figcaption>{c.label}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+    <div class="marquee-row">
+      <div class="marquee-track reverse">
+        {
+          [...rowB, ...rowB].map((c, i) => (
+            <figure class="shot square">
+              <AnimeScene v={c.v + 10 + (i % rowB.length)} ratio="square" />
+              <figcaption>{c.label}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .showcase-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-24);
+    margin-bottom: var(--spacing-40);
+  }
+
+  .marquee {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-16);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .marquee-row {
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    gap: var(--spacing-16);
+    width: max-content;
+    animation: slide 64s linear infinite;
+  }
+  .marquee-track.reverse {
+    animation-direction: reverse;
+    animation-duration: 78s;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes slide {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .shot {
+    position: relative;
+    height: 240px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    flex: 0 0 auto;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  }
+  .shot.wide {
+    width: 384px;
+  }
+  .shot.square {
+    width: 240px;
+  }
+  .shot figcaption {
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-paper-white);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+  }
+  .shot:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-image);
+    z-index: 2;
+  }
+  .shot:hover figcaption {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (max-width: 640px) {
+    .shot {
+      height: 168px;
+    }
+    .shot.wide {
+      width: 268px;
+    }
+    .shot.square {
+      width: 168px;
+    }
+  }
+</style>

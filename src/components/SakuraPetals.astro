@@ -1,0 +1,89 @@
+---
+/** Ambient falling sakura petals. Purely decorative, pointer-events off. */
+const count = 16;
+const petals = Array.from({ length: count }, (_, i) => ({
+  left: Math.round((i / count) * 100 + (i % 3) * 4),
+  delay: +((i * 0.9) % 12).toFixed(2),
+  dur: +(9 + ((i * 1.7) % 7)).toFixed(2),
+  scale: +(0.6 + ((i * 0.13) % 0.7)).toFixed(2),
+  drift: (i % 2 ? 1 : -1) * (20 + (i % 5) * 14),
+  hue: i % 4,
+}));
+const tints = ['#ffb6d2', '#ff9ec2', '#ffd0e0', '#ff7fae'];
+---
+
+<div class="sakura" aria-hidden="true">
+  {
+    petals.map((p) => (
+      <span
+        class="petal"
+        style={`
+          left:${p.left}%;
+          --delay:${p.delay}s;
+          --dur:${p.dur}s;
+          --scale:${p.scale};
+          --drift:${p.drift}px;
+        `}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14">
+          <path
+            d="M7 1 C10 3 12 6 11 9 C10 12 7 13 7 13 C7 13 4 12 3 9 C2 6 4 3 7 1 Z"
+            fill={tints[p.hue]}
+            opacity="0.9"
+          />
+        </svg>
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .sakura {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .petal {
+    position: absolute;
+    top: -24px;
+    will-change: transform, opacity;
+    animation: fall var(--dur) linear var(--delay) infinite;
+    transform: scale(var(--scale));
+    opacity: 0;
+  }
+  .petal svg {
+    display: block;
+    animation: spin calc(var(--dur) * 0.5) ease-in-out var(--delay) infinite alternate;
+  }
+  @keyframes fall {
+    0% {
+      transform: translate(0, -24px) scale(var(--scale));
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.9;
+    }
+    90% {
+      opacity: 0.85;
+    }
+    100% {
+      transform: translate(var(--drift), 108vh) scale(var(--scale));
+      opacity: 0;
+    }
+  }
+  @keyframes spin {
+    from {
+      transform: rotate(-40deg) rotateY(0deg);
+    }
+    to {
+      transform: rotate(60deg) rotateY(180deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sakura {
+      display: none;
+    }
+  }
+</style>

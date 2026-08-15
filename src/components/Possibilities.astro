@@ -1,0 +1,144 @@
+---
+import AnimeScene from './AnimeScene.astro';
+
+const cards = [
+  { v: 4, tag: 'Shounen', title: 'Storyboard an action arc' },
+  { v: 0, tag: 'Shoujo', title: 'A rooftop romance, animated' },
+  { v: 6, tag: 'Mecha', title: 'Pilot a giant robot' },
+  { v: 5, tag: 'Slice of life', title: 'Quiet summer episodes' },
+  { v: 2, tag: 'Isekai', title: 'Open a portal to another world' },
+  { v: 3, tag: 'Idol', title: 'Music videos that dance' },
+];
+---
+
+<section class="section carousel-section" data-carousel>
+  <div class="container">
+    <div class="carousel-head" data-reveal>
+      <h2 class="headline-section">
+        Every genre.<br />
+        <span class="echo">One canvas for all of it.</span>
+      </h2>
+      <div class="carousel-controls">
+        <button class="ctl" data-prev aria-label="Scroll left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            ><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path></svg
+          >
+        </button>
+        <button class="ctl" data-next aria-label="Scroll right">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            ><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path></svg
+          >
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="track no-scrollbar" data-track>
+      {
+        cards.map((c, i) => (
+          <a
+            href="#pricing"
+            class="poss-card"
+            data-reveal
+            style={`--reveal-delay:${i * 60}ms`}
+          >
+            <AnimeScene v={c.v} ratio="tall" class="poss-scene" />
+            <div class="poss-overlay">
+              <span class="pill">{c.tag}</span>
+              <h3>{c.title}</h3>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .carousel-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-24);
+    margin-bottom: var(--spacing-32);
+  }
+  .carousel-controls {
+    display: flex;
+    gap: var(--spacing-8);
+  }
+  .ctl {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-full);
+    background: var(--surface-raised);
+    color: var(--color-paper-white);
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .ctl:hover {
+    background: var(--surface-floating);
+  }
+  .ctl:active {
+    transform: scale(0.92);
+  }
+
+  .track {
+    display: flex;
+    gap: var(--spacing-16);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-block: 4px;
+    margin-inline: calc(var(--spacing-24) * -1);
+    padding-inline: var(--spacing-24);
+  }
+  .poss-card {
+    position: relative;
+    flex: 0 0 300px;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    scroll-snap-align: start;
+  }
+  .poss-card :global(.poss-scene) {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .poss-card:hover :global(.poss-scene) {
+    transform: scale(1.07);
+  }
+  .poss-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0) 55%);
+  }
+  .poss-overlay {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+    align-items: flex-start;
+  }
+  .poss-overlay h3 {
+    font-size: var(--text-body-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-paper-white);
+    letter-spacing: -0.4px;
+    line-height: 1.25;
+  }
+
+  @media (max-width: 640px) {
+    .poss-card {
+      flex-basis: 240px;
+    }
+  }
+</style>
